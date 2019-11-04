@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Sep 24 22:02:47 2019
-@author: fhall
+@author: spell, jhardy, fhall
 """
 # =============================================================================
 # IMPORTS
@@ -10,8 +10,10 @@ from botsettings import API_TOKEN # imports api token for jarvis
 import csv                        # csv parsing
 import json                       # allow parsing of json strings
 import requests                   # api get/post writing
+import re
 import sqlite3 as sq              # to access database
-import sys, os
+#from string import punctuation    # to remove punctuation from text
+import os
 import time                       # timers
 import websocket                  # 
 try:
@@ -19,6 +21,9 @@ try:
 except ImportError:
     import _thread as thread
     
+# scikit-learn
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
 # =============================================================================
 # DATABASE START
 # =============================================================================
@@ -71,6 +76,36 @@ def read_query(training_txt, action_txt):
 # DATABASE END
 # =============================================================================
 
+# FUNCTIONS START
+# =============================================================================
+
+def clean_txt(text):
+    """ Clean the text by changing to lowercase, removing non-ASCII characters
+    """
+    text = text.lower()    
+    #replace consecutive non-ASCII characters with apostrophe
+    text = re.sub(r'[^\x00-\x7F]+',"'", text)
+    
+    return text
+
+change_count = 0
+
+def classification_check(action,text):
+    """ Check to see if the ACTION matches the TEXT
+    """
+    action_words = {'GREET':('hello'),
+                    'TIME':('time'),
+                    'PIZZA':('pizza'),
+                    'JOKE':('joke'),
+                    'WEATHER':('weather')}
+    for action_header, words in action_words.items():
+        if words in text and action != action_header:
+            new_action = action_header
+            print('changed action', text, action, new_action, sep='\t')
+            global change_count
+            change_count += 1
+    return action
+
 # Read in external msg_txt,action data
 test_data = {}
 reports_directory = 'data'
@@ -80,44 +115,64 @@ counter = 0
 directory = os.fsencode(reports_directory)  # establish directory
 
 for file in os.listdir(directory):
-        i+=1
-        print(i,file)
+
         filename = os.fsdecode(file)
         filename = reports_directory + '/' + filename
-
+        # don't parse .DS_Store file
         if filename != "data/.DS_Store":
-            try:    
+            try:
                 # try parsing as json
                 f = open(filename)
                 for row in f:
                     data = json.loads(row)
+                    text = clean_txt(data['TXT'])
+                    action = classification_check(data['ACTION'], text)
                     try:
-                        # if it already exists
-                        test_data[data['ACTION']].append(data['TXT'])
+                        # if action already exists, append text
+                        test_data[action].append(text)
                     except KeyError:
-                        # if new
-                        test_data[data['ACTION']] = [data['TXT']]
-                    counter +=1
+                        # if new action, create list of text
+                        test_data[action] = [text]
                 f.close()
                       
             except:
                 f = open(filename, 'r')
                 reader = csv.reader(f)
                 for row in reader:
+                    text = clean_txt(row[0])
+                    action = classification_check(row[1], text)
                     try:
-                        # if it already exists
-                        test_data[row[1]].append(row[0])
+                        # if action already exists, append text
+                        test_data[action].append(text)
                     except KeyError:
-                        # if new
-                        test_data[row[1]] = [row[0]]
-                    counter +=1
+                        # if new action, create list of text
+                        test_data[action] = [text]
                 f.close()
 
 # cleaning external data
-# general cleaning (lowercase, quotations, etc.)
+print('total changes:', change_count)
 
 # run through key-value and analyse distribution
 
+# ML Part:
+
+# structure as an X-Y format
+X = []; Y = []
+for action,texts in test_data.items():
+    for text in texts:
+        X.append(text)
+        Y.append(action)
+
+# what model do we want to use?
+    # DecisionTreeClassifier()
+    # multinomialNB()
+    # SVM
+    # RandomForest
+
+
+# =============================================================================
+# RUN JARVIS
+# =============================================================================
 
 # establish boolean variables
 training_bool = False
