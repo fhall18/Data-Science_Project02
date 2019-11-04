@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="9be87160-6898-4570-ac31-5c7fae03b3fe" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jarvis.py" beforeDir="false" afterPath="$PROJECT_DIR$/jarvis.py" afterDir="false" />
-    </list>
+    <list default="true" id="9be87160-6898-4570-ac31-5c7fae03b3fe" name="Default Changelist" comment="added simple model to start with and many others commented out... next will be testing it" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,6 +75,7 @@
       <updated>1572819507116</updated>
       <workItem from="1572819511106" duration="1087000" />
       <workItem from="1572875047407" duration="83000" />
+      <workItem from="1572880874584" duration="197000" />
     </task>
     <task id="LOCAL-00001" summary="creating branch">
       <created>1572819544250</created>
@@ -87,7 +84,14 @@
       <option name="project" value="LOCAL" />
       <updated>1572819544250</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="added simple model to start with and many others commented out... next will be testing it">
+      <created>1572880951094</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1572880951094</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -108,7 +112,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="creating branch" />
-    <option name="LAST_COMMIT_MESSAGE" value="creating branch" />
+    <MESSAGE value="added simple model to start with and many others commented out... next will be testing it" />
+    <option name="LAST_COMMIT_MESSAGE" value="added simple model to start with and many others commented out... next will be testing it" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Project02$jarvis.coverage" NAME="jarvis Coverage Results" MODIFIED="1572819915881" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
