@@ -9,6 +9,8 @@ Created on Tue Sep 24 22:02:47 2019
 # from botsettings import API_TOKEN  # imports api token for jarvis
 import csv  # csv parsing
 import json  # allow parsing of json strings
+import pickle
+
 import requests  # api get/post writing
 import re
 import sqlite3 as sq  # to access database
@@ -265,7 +267,8 @@ gs_clf = gs_clf.fit(X_train, Y_train)
 print(gs_clf.best_score_)
 print(gs_clf.best_params_)
 
-
+filename = 'jarvis_UNCANNYHORSE.pkl'
+pickle.dump(sgd_model, open(filename, 'wb'))
 
 
 

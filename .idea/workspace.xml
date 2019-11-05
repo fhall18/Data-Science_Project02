@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9be87160-6898-4570-ac31-5c7fae03b3fe" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/jarvis.py" beforeDir="false" afterPath="$PROJECT_DIR$/jarvis.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -78,7 +77,7 @@
       <updated>1572819507116</updated>
       <workItem from="1572819511106" duration="1087000" />
       <workItem from="1572875047407" duration="83000" />
-      <workItem from="1572880874584" duration="691000" />
+      <workItem from="1572880874584" duration="946000" />
     </task>
     <task id="LOCAL-00001" summary="creating branch">
       <created>1572819544250</created>
@@ -101,7 +100,14 @@
       <option name="project" value="LOCAL" />
       <updated>1572881080663</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="all models, best printed out">
+      <created>1572920905881</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1572920905881</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -123,9 +129,10 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="creating branch" />
     <MESSAGE value="added simple model to start with and many others commented out... next will be testing it" />
-    <option name="LAST_COMMIT_MESSAGE" value="added simple model to start with and many others commented out... next will be testing it" />
+    <MESSAGE value="all models, best printed out" />
+    <option name="LAST_COMMIT_MESSAGE" value="all models, best printed out" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Project02$jarvis.coverage" NAME="jarvis Coverage Results" MODIFIED="1572920790086" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Project02$jarvis.coverage" NAME="jarvis Coverage Results" MODIFIED="1572921144810" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
