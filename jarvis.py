@@ -109,11 +109,11 @@ def classification_check(action,text):
     old_action = action
     # order matters!
     action_words = [
-            {'GREET':{'hello', 'hola','whats up','what\'s up', 'hi jarvis', 'hey there', 'hi!', 'hey!', 'hiya', 'hey.'}},
             {'PIZZA':{'pizza','dinner','topping','takeout',' pie','order','food','cheese', 'pepperoni'}},
             {'WEATHER':{'weather',' sun',' rain',' wind','temperature','forecast','sleet','snow'}},
             {'TIME':{'the time', 'sun set', 'sun rise', 'what time','clock','hour', 'watch say'}},
             {'JOKE':{'joke', 'funny','funniest','cheer','laugh','hilarious','knock', 'humor'}},
+            {'GREET':{'hello', 'hola','whats up','what\'s up', 'hi jarvis', 'hey there', 'hi!', 'hey!', 'hiya', 'hey.'}}
             ]
     
     for action_dict in action_words:
