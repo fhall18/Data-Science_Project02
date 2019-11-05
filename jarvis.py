@@ -6,7 +6,7 @@ Created on Tue Sep 24 22:02:47 2019
 """
 # =============================================================================
 # IMPORTS
-from botsettings import API_TOKEN  # imports api token for jarvis
+# from botsettings import API_TOKEN  # imports api token for jarvis
 import csv  # csv parsing
 import json  # allow parsing of json strings
 import requests  # api get/post writing
@@ -16,6 +16,8 @@ import sqlite3 as sq  # to access database
 import os
 import time  # timers
 import websocket
+import numpy as np
+from sklearn.pipeline import Pipeline
 from sklearn import preprocessing
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
@@ -24,62 +26,67 @@ from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import SGDClassifier
+from sklearn.model_selection import GridSearchCV
 
 try:
     import thread
 except ImportError:
     import _thread as thread
 
+
 # =============================================================================
 # DATABASE START
 # =============================================================================
-try:
-    database = sq.connect('jarvis.db')
-    conn = database.cursor()
-
-except ValueError as err:
-    print(err)
-
-
-def insert_query(training_txt, action_txt):
-    create_table = """CREATE TABLE IF NOT EXISTS training_data(
-                            txt TEXT,
-                            label TEXT);
-        """
-
-    conn.execute(create_table)
-    # store the new action in here
-    read_table = "SELECT * FROM training_data WHERE label = '{c_action}'".format(c_action=action_txt)
-    conn.execute(read_table)
-
-    table_training_text = conn.fetchall()
-
-    # store all training text under certain action into this list
-    training_txt_lst = []
-    for i in table_training_text:
-        training_txt_lst.append(i[0])
-    # check if the training text already exist, if not add
-    if training_txt not in training_txt_lst:
-        conn.execute("""INSERT INTO training_data(txt, label) VALUES(?,?)""",
-                     (training_txt, action_txt))
-
-    database.commit()
-
-
-def read_query(training_txt, action_txt):
-    read_table = "SELECT * FROM training_data"
-    conn.execute(read_table)
-
-    table_training_text = conn.fetchall()
-
-    # store all training text under certain action into this list
-    training_txt_lst = []
-    for i in table_training_text:
-        training_txt_lst.append(i[1].lower())
-        # check if the training text already exist, if yes return action
-        if training_txt in training_txt_lst:
-            action_txt = i[0]
-            return action_txt
+# try:
+#    database = sq.connect('jarvis.db')
+#    conn = database.cursor()
+#
+# except ValueError as err:
+#    print(err)
+#
+#
+# def insert_query(training_txt, action_txt):
+#    create_table = """CREATE TABLE IF NOT EXISTS training_data(
+#                            txt TEXT,
+#                            label TEXT);
+#        """
+#
+#    conn.execute(create_table)
+#    # store the new action in here
+#    read_table = "SELECT * FROM training_data WHERE label = '{c_action}'".format(c_action=action_txt)
+#    conn.execute(read_table)
+#
+#    table_training_text = conn.fetchall()
+#
+#    # store all training text under certain action into this list
+#    training_txt_lst = []
+#    for i in table_training_text:
+#        training_txt_lst.append(i[0])
+#    # check if the training text already exist, if not add
+#    if training_txt not in training_txt_lst:
+#        conn.execute("""INSERT INTO training_data(txt, label) VALUES(?,?)""",
+#                     (training_txt, action_txt))
+#
+#    database.commit()
+#
+#
+# def read_query(training_txt, action_txt):
+#    read_table = "SELECT * FROM training_data"
+#    conn.execute(read_table)
+#
+#    table_training_text = conn.fetchall()
+#
+#    # store all training text under certain action into this list
+#    training_txt_lst = []
+#    for i in table_training_text:
+#        training_txt_lst.append(i[1].lower())
+#        # check if the training text already exist, if yes return action
+#        if training_txt in training_txt_lst:
+#            action_txt = i[0]
+#            return action_txt
 
 
 # =============================================================================
@@ -178,74 +185,85 @@ print('total changes:', change_count)
 
 le = preprocessing.LabelEncoder()
 ct_vec = CountVectorizer()
+nb_clf = Pipeline([
+    ('vect', CountVectorizer(stop_words='english')),
+    ('tfidf', TfidfTransformer()),
+    ('clf', MultinomialNB())])
+lin_clf = Pipeline([
+    ('vect', CountVectorizer(stop_words='english')),
+    ('tfidf', TfidfTransformer()),
+    ('clf', SVC(kernel='linear'))])
+# poly_clf = Pipeline([
+#        ('vect', CountVectorizer()),
+#        ('tfidf', TfidfTransformer()),
+#        ('clf', SVC(kernel = 'poly'))])
+# rbf_clf = Pipeline([
+#        ('vect', CountVectorizer()),
+#        ('tfidf', TfidfTransformer()),
+#        ('clf', SVC(kernel = 'rbf'))])
+# sig_clf = Pipeline([
+#        ('vect', CountVectorizer()),
+#        ('tfidf', TfidfTransformer()),
+#        ('clf', SVC(kernel = 'sigmoid'))])
+# tree_clf = Pipeline([
+#        ('vect', CountVectorizer()),
+#        ('tfidf', TfidfTransformer()),
+#        ('clf', DecisionTreeClassifier())])
+# forest_clf = Pipeline([
+#        ('vect', CountVectorizer()),
+#        ('tfidf', TfidfTransformer()),
+#        ('clf', RandomForestClassifier())])
+sgd_clf = Pipeline([
+    ('vect', CountVectorizer(stop_words='english')),
+    ('tfidf', TfidfTransformer()),
+    ('clf', SGDClassifier())])
 
-ct = 0
-word_ct = {}
-vectorized = {}
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
 
-X = ct_vec.fit_transform(X)
-tf_transformer = TfidfTransformer(use_idf=False).fit(X)
-X = tf_transformer.transform(X)
-# standardized_X = preprocessing.scale(X)
+bayes_model = nb_clf.fit(X_train, Y_train)
+lin_model = lin_clf.fit(X_train, Y_train)
+# poly_model = poly_clf.fit(X_train, Y_train)
+# rbf_model = rbf_clf.fit(X_train, Y_train)
+# sig_model = sig_clf.fit(X_train, Y_train)
+# tree_model = tree_clf.fit(X_train, Y_train)
+# forest_model = forest_clf.fit(X_train, Y_train)
+sgd_model = sgd_clf.fit(X_train, Y_train)
 
-Y = le.fit_transform(Y)
-print(X)
-clf = MultinomialNB().fit(X, Y)
-print(clf)
-#
-# bayes_model = MultinomialNB().fit(X, Y)
-# lin_model = SVC(kernel = 'linear').fit(standardized_X, y)
-# poly_model = SVC(kernel = 'poly').fit(standardized_X, y)
-# rbf_model = SVC(kernel = 'rbf').fit(standardized_X, y)
-# sig_model = SVC(kernel = 'sigmoid').fit(standardized_X, y)
-#
-# bayes = bayes_model.predict(standardized_X)
-# lin = lin_model.predict(standardized_X)
-# poly = poly_model.predict(standardized_X)
-# rbf = rbf_model.predict(standardized_X)
-# sig = sig_model.predict(standardized_X)
-#
-#
-##CROSS VALIDATION SCORES
-# bayes_scores = cross_val_score(bayes_model, standardized_X, y, cv=k)
-# lin_scores = cross_val_score(lin_model, standardized_X, y, cv=k)
-# poly_scores = cross_val_score(poly_model, standardized_X, y, cv=k)
-# rbf_scores = cross_val_score(rbf_model, standardized_X, y, cv=k)
-# sig_scores = cross_val_score(sig_model, standardized_X, y, cv=k)
-#
-#
-##ACCURACY SCORES FOR PREDICTION
-# X_train, X_test, y_train, y_test = train_test_split(standardized_X, Y)
-# bayes_acc = accuracy_score(y_test, bayes)
-# lin_acc = accuracy_score(y_test, lin)
-# poly_acc = accuracy_score(y_test, poly)
-# rbf_acc = accuracy_score(y_test, rbf)
-# sig_acc = accuracy_score(y_test, sig)
-#
-#
-# print("bayes: ", np.mean(bayes_scores)*100)
-# print("linear: ", np.mean(lin_scores)*100)
-# print("poly: ", np.mean(poly_scores)*100)
-# print("rbf: ", np.mean(rbf_scores)*100)
-# print("sigmoid: ", np.mean(sig_scores)*100)
-#
-#
-#
-# print("accuracy: ", bayes_acc)
-# print("accuracy: ", lin_acc)
-# print("accuracy: ", poly_acc)
-# print("accuracy: ", rbf_acc)
-# print("accuracy: ", sig_acc)
+# CREATE MODELS
+bayes = nb_clf.predict(X_test)
+lin = lin_model.predict(X_test)
+# poly = poly_model.predict(X_test)
+# rbf = rbf_model.predict(X_test)
+# sig = sig_model.predict(X_test)
+# tree = tree_model.predict(X_test)
+# forest = forest_model.predict(X_test)
+sgd = sgd_model.predict(X_test)
 
+# ACCURACY SCORES FOR PREDICTION
+bayes_acc = accuracy_score(Y_test, bayes)
+lin_acc = accuracy_score(Y_test, lin)
+# poly_acc = accuracy_score(Y_test, poly)
+# rbf_acc = accuracy_score(Y_test, rbf)
+# sig_acc = accuracy_score(Y_test, sig)
+# tree_acc = accuracy_score(Y_test, tree)
+# forest_acc = accuracy_score(Y_test, forest)
+sgd_acc = accuracy_score(Y_test, sgd)
 
-# what model do we want to use?
-# DecisionTreeClassifier()
-# multinomialNB()
-# SVM
-# RandomForest
+# PRINT OUT ACCURACY SCORES FOR ALL MODELS
+print("BAYES: ", bayes_acc * 100)
+print("LIN: ", lin_acc * 100)
+# print("POLY: ", poly_acc*100)
+# print("RBF: ", rbf_acc*100)
+# print("SIGMOID: ", sig_acc*100)
+# print("TREE: ", tree_acc*100)
+# print("RAND FOREST: ", forest_acc*100)
+print("SGD: ", sgd_acc * 100)
 
-
-
+parameters = {'vect__ngram_range': [(1, 1), (1, 2)], 'tfidf__use_idf': (True, False), 'clf__alpha': (1e-2, 1e-3), }
+gs_clf = GridSearchCV(sgd_model, parameters, n_jobs=-1)
+gs_clf = gs_clf.fit(X_train, Y_train)
+print(gs_clf.best_score_)
+print(gs_clf.best_params_)
 
 
 
