@@ -216,7 +216,7 @@ lin_clf = Pipeline([
 #        ('tfidf', TfidfTransformer()),
 #        ('clf', RandomForestClassifier())])
 sgd_clf = Pipeline([
-    ('vect', CountVectorizer(stop_words='english')),
+    ('vect', CountVectorizer()),
     ('tfidf', TfidfTransformer()),
     ('clf', SGDClassifier())])
 
