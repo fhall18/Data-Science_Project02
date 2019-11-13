@@ -9,12 +9,13 @@ Created on Tue Nov  5 20:25:32 2019
 #from botsettings import API_TOKEN # imports api token for jarvis
 import csv                        # csv parsing
 import json                       # allow parsing of json strings
-#import numpy as np                
+import matplotlib.pyplot as plt; plt.rcdefaults()
+import numpy as np     
+import matplotlib.pyplot as plt           
 import pickle                     # pickle the brain
 import re
 import sqlite3 as sq              # to access database
 import os
-#import time                       # timers
 
 # scikit-learn imports
 from sklearn.pipeline import Pipeline
@@ -22,15 +23,10 @@ from sklearn import preprocessing
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
-#from sklearn.svm import SVC
 from sklearn.svm import LinearSVC
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
-#from sklearn.model_selection import cross_val_score
-#from sklearn.tree import DecisionTreeClassifier
-#from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import SGDClassifier
-#from sklearn.model_selection import GridSearchCV
 
 # =============================================================================
 # FUNCTIONS START
@@ -69,7 +65,7 @@ def action_check(action,text,filename):
 
     ### !!! CLEAN THIS UP BEFORE SUBMITTING !!! ###
     if action != old_action:
-        print('changed {}'.format(old_action).ljust(16),'to {}'.format(action).ljust(10), text, sep='\t') 
+#        print('changed {}'.format(old_action).ljust(16),'to {}'.format(action).ljust(10), text, sep='\t') 
         # counter
         global change_count
         change_count += 1
@@ -152,56 +148,34 @@ for row in table_training_text:
 # Model Classifier Part:
     
 # define 3 best performing models:
-nb_clf = Pipeline([
-    ('vect', CountVectorizer(stop_words='english')),
-    ('tfidf', TfidfTransformer()),
-    ('clf', MultinomialNB())])
+bayes_list = []
+lin_list = []
+sgd_list = []
 
-lin_clf = Pipeline([
-    ('vect', CountVectorizer(stop_words='english')),
-    ('tfidf', TfidfTransformer()),
-    ('clf', LinearSVC())])
-
-sgd_clf = Pipeline([
-    ('vect', CountVectorizer()),
-    ('tfidf', TfidfTransformer()),
-    ('clf', SGDClassifier())])
-
-# SPLIT OUT TEST & TRAIN SETS
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
-
-# CREATE MODEL & TEST
-bayes_model = nb_clf.fit(X_train, Y_train)
-lin_model = lin_clf.fit(X_train, Y_train)
-sgd_model = sgd_clf.fit(X_train, Y_train)
-
-bayes = nb_clf.predict(X_test)
-lin = lin_model.predict(X_test)
-sgd_test = sgd_model.predict(X_test)
-
-# ACCURACY SCORES FOR PREDICTION
-bayes_acc = accuracy_score(Y_test, bayes)
-lin_acc = accuracy_score(Y_test, lin)
-sgd_acc = accuracy_score(Y_test, sgd_test)
-
-# PRINT OUT ACCURACY SCORES
-print("BAYES: ", bayes_acc * 100)
-print("LIN: ", lin_acc * 100)
-print("SGD: ", sgd_acc * 100)
-
+for i in range(25):
+    nb_clf = Pipeline([
+        ('vect', CountVectorizer(stop_words='english')),
+        ('tfidf', TfidfTransformer()),
+        ('clf', MultinomialNB())])
+    
+    lin_clf = Pipeline([
+        ('vect', CountVectorizer(stop_words='english')),
+        ('tfidf', TfidfTransformer()),
+        ('clf', LinearSVC())])
+    
+    sgd_clf = Pipeline([
+        ('vect', CountVectorizer()),
+        ('tfidf', TfidfTransformer()),
+        ('clf', SGDClassifier())])
+    
+    # SPLIT OUT TEST & TRAIN SETS
+    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
+    
+    # CREATE MODEL & TEST
+    sgd_model = sgd_clf.fit(X_train, Y_train)
+    
+    sgd_test = sgd_model.predict(X_test)
 
 # Pickle the brain
 filename = 'jarvis_UNCANNYHORSE.pkl'
 pickle.dump(sgd_model, open(filename, 'wb'))
-
-# =============================================================================
-
-
-### !!! DO WE NEED THS? !!! ###
-#parameters = {'vect__ngram_range': [(1, 1), (1, 2)], 'tfidf__use_idf': (True, False), 'clf__alpha': (1e-2, 1e-3), }
-
-#### !!! DELETE BEFORE SUBMITTING !!! ####
-## Load the pickled model 
-#knn_from_pickle = pickle.load(open(filename,'rb')) 
-## Use the loaded pickled model to make predictions 
-#print(knn_from_pickle.predict(['whats going on']))
